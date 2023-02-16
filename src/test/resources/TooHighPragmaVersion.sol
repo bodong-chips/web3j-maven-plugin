@@ -4,7 +4,7 @@ contract HelloWorld {
 
     string saySomething;
 
-    constructor() public  {
+    constructor() public {
         saySomething = "Hello World!";
     }
 

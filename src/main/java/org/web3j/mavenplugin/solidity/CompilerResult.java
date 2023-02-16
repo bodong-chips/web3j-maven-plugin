@@ -2,7 +2,6 @@ package org.web3j.mavenplugin.solidity;
 
 /**
  * Container for the compile result.
- *
  */
 public class CompilerResult {
     public String errors;

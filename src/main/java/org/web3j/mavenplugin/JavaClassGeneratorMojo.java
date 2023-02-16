@@ -1,10 +1,8 @@
 package org.web3j.mavenplugin;
 
 
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +26,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,8 +51,12 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
     private static final String DEFAULT_ABI_SOURCES = "src/main/resources";
     private static final String DEFAULT_OUTPUT_FORMAT = "java";
 
-    @Parameter(property = "packageName", defaultValue = DEFAULT_PACKAGE)
-    protected String packageName;
+    @Parameter(property = "javaPackageName", defaultValue = DEFAULT_PACKAGE)
+    protected String javaPackageName;
+    @Parameter(property = "abiPackageName", defaultValue = DEFAULT_PACKAGE)
+    protected String abiPackageName;
+    @Parameter(property = "binPackageName", defaultValue = DEFAULT_PACKAGE)
+    protected String binPackageName;
 
     @Parameter(property = "sourceDestination", defaultValue = DEFAULT_SOURCE_DESTINATION)
     protected String sourceDestination;
@@ -77,9 +85,12 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
     @Parameter(property = "outputJavaParentContractClassName")
     protected String outputJavaParentContractClassName;
 
-    private Path createPath(String destinationPath) throws IOException {
-        Path path = Paths.get(destinationPath, packageName);
-
+    private Path createPath(String destinationPath, Options option) throws IOException {
+        Path path = Paths.get(destinationPath);
+        if (Options.ABI.equals(option)) {
+            path = Paths.get(destinationPath, abiPackageName);
+        } else if (Options.BIN.equals(option))
+            path = Paths.get(destinationPath, binPackageName);
         if (!path.toFile().exists()) {
             Files.createDirectories(path);
         }
@@ -161,7 +172,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
                         bin,
                         functionDefinitions,
                         StringUtils.defaultString(outputDirectory.getJava(), sourceDestination),
-                        packageName,
+                        javaPackageName,
                         null
 
                 );
@@ -183,11 +194,11 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
         Map<String, String> results = parseAbiFile(fileContent);
 
         List<AbiDefinition> functionDefinitions = loadContractDefinition(results.get(SolidityCompiler.Options.ABI.getName()));
-        if(!functionDefinitions.isEmpty()) {
+        if (!functionDefinitions.isEmpty()) {
             generatedJavaClass(contractName, functionDefinitions, results.get(SolidityCompiler.Options.BIN.getName()));
         } else {
             getLog().warn("Ignoring input abi file for contract \"" + contractName + "\". " +
-                              "ABI Definition is empty.");
+                    "ABI Definition is empty.");
         }
     }
 
@@ -197,7 +208,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
         ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
         JsonNode abiData = objectMapper.readTree(fileContent);
 
-        if(abiData.isObject() && abiData.has("abi") && abiData.has("bytecode")) {
+        if (abiData.isObject() && abiData.has("abi") && abiData.has("bytecode")) {
             // truffle or hardhat artifact
             results.put(SolidityCompiler.Options.BIN.getName(), abiData.get("bytecode").asText());
             results.put(SolidityCompiler.Options.ABI.getName(), objectMapper.writeValueAsString(abiData.get("abi")));
@@ -265,7 +276,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
         String abiJson = contractResult.get(SolidityCompiler.Options.ABI.getName());
         try {
             String filename = contractName + ".json";
-            Path path = createPath(StringUtils.defaultString(outputDirectory.getAbi(), sourceDestination));
+            Path path = createPath(StringUtils.defaultString(outputDirectory.getAbi(), sourceDestination), Options.ABI);
             Files.write(Paths.get(path.toString(), filename), abiJson.getBytes());
         } catch (IOException e) {
             getLog().error("Could not build abi file for contract '" + contractName + "'", e);
@@ -280,7 +291,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
         String binJson = contractResult.get(SolidityCompiler.Options.BIN.getName());
         try {
             String filename = contractName + ".bin";
-            Path path = createPath(StringUtils.defaultString(outputDirectory.getBin(), sourceDestination));
+            Path path = createPath(StringUtils.defaultString(outputDirectory.getBin(), sourceDestination), Options.BIN);
 
             Files.write(Paths.get(path.toString(), filename), binJson.getBytes());
         } catch (IOException e) {

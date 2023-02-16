@@ -1,47 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.web3j</groupId>
+    <groupId>bodong-chips</groupId>
     <artifactId>web3j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>4.9.5-SNAPSHOT</version>
-
-    <name>web3j Maven Mojo</name>
-    <description>Mojo's web3j Maven plugin is used to create java classes based on the solidity
-        contract files.
-    </description>
-    <url>https://web3j.io</url>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.version>3.6.1</maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <web3j.version>4.9.4</web3j.version>
+        <web3j.version>4.9.6</web3j.version>
     </properties>
-
-    <licenses>
-        <license>
-            <name>Apache 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Marti Heinz</name>
-            <email>github@h2m.ch</email>
-            <organization>Zuehlke Engineering</organization>
-            <organizationUrl>http://www.zuehlke.com</organizationUrl>
-            <timezone>Europe/Bern</timezone>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:https://github.com/web3j/${project.artifactId}.git</connection>
-        <developerConnection>scm:git:https://github.com/web3j/${project.artifactId}.git</developerConnection>
-        <url>https://github.com/web3j/${project.artifactId}.git</url>
-        <tag>web3j-maven-plugin-4.9.4</tag>
-    </scm>
 
     <dependencies>
         <dependency>
@@ -104,9 +75,7 @@
             <artifactId>web3j-sokt</artifactId>
             <version>0.2.1</version>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -114,12 +83,18 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven.version}</version>
             </plugin>
-
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.8</version>
                 <executions>
                     <execution>
                         <goals>
@@ -160,77 +135,14 @@
 
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <!--http://www.sonatype.org/nexus/2014/10/08/distribute-project-artifacts-in-maven-central-with-nexus-oss/ -->
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <repositories>
-        <repository>
-            <id>ethereum</id>
-            <url>https://dl.bintray.com/ethereum/maven/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>github-maven</id>
+            <url>https://maven.pkg.github.com/bodong-chips/packages-repository</url>
         </repository>
+        <snapshotRepository>
+            <id>github-maven</id>
+            <url>https://maven.pkg.github.com/bodong-chips/packages-repository</url>
+        </snapshotRepository>
     </distributionManagement>
-
 </project>
