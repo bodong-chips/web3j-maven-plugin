@@ -89,8 +89,11 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
         Path path = Paths.get(destinationPath);
         if (Options.ABI.equals(option)) {
             path = Paths.get(destinationPath, abiPackageName);
-        } else if (Options.BIN.equals(option))
+        } else if (Options.BIN.equals(option)) {
             path = Paths.get(destinationPath, binPackageName);
+        } else if (Options.BIN_RUNITME.equals(option)) {
+            path = Paths.get(destinationPath, binPackageName);
+        }
         if (!path.toFile().exists()) {
             Files.createDirectories(path);
         }
@@ -284,16 +287,30 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
     }
 
     private void generatedBin(Map<String, String> contractResult, String contractName) {
-        if (!StringUtils.containsIgnoreCase(outputFormat, "bin")) {
+        String binJson = contractResult.get(SolidityCompiler.Options.BIN.getName());
+        if (!StringUtils.containsIgnoreCase(outputFormat, "bin") || StringUtils.isBlank(binJson)) {
             return;
         }
-
-        String binJson = contractResult.get(SolidityCompiler.Options.BIN.getName());
         try {
             String filename = contractName + ".bin";
             Path path = createPath(StringUtils.defaultString(outputDirectory.getBin(), sourceDestination), Options.BIN);
 
             Files.write(Paths.get(path.toString(), filename), binJson.getBytes());
+        } catch (IOException e) {
+            getLog().error("Could not build bin file for contract '" + contractName + "'", e);
+        }
+    }
+
+    private void generatedBinRuntime(Map<String, String> contractResult, String contractName) {
+        String binRuntimeJson = contractResult.get(Options.BIN_RUNITME.getName());
+        if (!StringUtils.containsIgnoreCase(outputFormat, "bin-runtime") || StringUtils.isBlank(binRuntimeJson)) {
+            return;
+        }
+        try {
+            String filename = contractName + ".bin.runtime";
+            Path path = createPath(StringUtils.defaultString(outputDirectory.getBin(), sourceDestination), Options.BIN_RUNITME);
+
+            Files.write(Paths.get(path.toString(), filename), binRuntimeJson.getBytes());
         } catch (IOException e) {
             getLog().error("Could not build bin file for contract '" + contractName + "'", e);
         }
@@ -315,6 +332,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
                 pathPrefixes,
                 SolidityCompiler.Options.ABI,
                 SolidityCompiler.Options.BIN,
+                SolidityCompiler.Options.BIN_RUNITME,
                 SolidityCompiler.Options.METADATA
         );
         if (result.isFailed()) {
@@ -347,6 +365,7 @@ public class JavaClassGeneratorMojo extends AbstractMojo {
                 generatedJavaClass(contractResult, contractName);
                 generatedAbi(contractResult, contractName);
                 generatedBin(contractResult, contractName);
+                generatedBinRuntime(contractResult, contractName);
                 getLog().info("\tBuilt Class for contract '" + contractName + "'");
             } catch (ClassNotFoundException | IOException ioException) {
                 getLog().error("Could not build java class for contract '" + contractName + "'", ioException);

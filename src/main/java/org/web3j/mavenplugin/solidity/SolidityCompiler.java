@@ -134,6 +134,7 @@ public class SolidityCompiler {
 
     public enum Options {
         BIN("bin"),
+        BIN_RUNITME("bin-runtime"),
         ABI("abi"),
         METADATA("metadata");
 
