@@ -138,11 +138,10 @@
     <distributionManagement>
         <repository>
             <id>github-maven</id>
-            <url>https://maven.pkg.github.com/bodong-chips/packages-repository</url>
+            <url>https://maven.pkg.github.com/bodong-chips/maven-packages</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
-        <snapshotRepository>
-            <id>github-maven</id>
-            <url>https://maven.pkg.github.com/bodong-chips/packages-repository</url>
-        </snapshotRepository>
     </distributionManagement>
 </project>

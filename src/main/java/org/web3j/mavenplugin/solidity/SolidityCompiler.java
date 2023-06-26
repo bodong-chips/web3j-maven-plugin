@@ -104,7 +104,7 @@ public class SolidityCompiler {
         String outputFormats = Arrays.stream(options).map(Options::toString).collect(Collectors.joining(","));
         String allowedPaths = prepareAllowPath(rootDirectory, pathPrefixes);
         List<String> dependencyPath = getAbsolutePathPrefixes(rootDirectory, pathPrefixes).entrySet().stream().map(entry1 -> entry1.getKey() + "=" + entry1.getValue()).collect(Collectors.toList());
-        List<String> sourceFiles = sources.stream().map(source -> toAbsolutePath(rootDirectory, source)).collect(Collectors.toList());
+        List<String> sourceFiles = sources.stream().map(source -> toAbsolutePath(rootDirectory, source)).toList();
 
         List<String> commandParts = new ArrayList<>();
         commandParts.add(canonicalSolCPath);
